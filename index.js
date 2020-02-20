@@ -21,10 +21,12 @@ const path = require('path')
 let actualLibraryID = 0
 let actualBookID = 0
 let libros
-let librerias = []
+let librerias
 let dias
 let puntuaciones
 let arrayLibros = []
+let puntuaciones = []
+let arrayLibrerias = []
 
 function leerFichero(filename) {
   return new Promise((res, rej) => {
@@ -79,8 +81,8 @@ class Libreria {
     this.id = actualLibraryID++
     this.cantidadLibros = l1[0]
     this.cantidadDias = l1[1]
-    this.librosPorDia = l1[1]
-    this.libros = l2.split(' ')
+    this.librosPorDia = l1[2]
+    this.libros = l2
   }
 }
 
@@ -95,13 +97,17 @@ function getMetaData(fichero) {
   puntuaciones = fichero[1].split(' ')
 }
 
-function getLibrerias() {}
-
 function getLibros(fichero) {
   let librosLine = fichero[1].split(' ')
 
   for (let i = 0; i < libros; i++) {
     arrayLibros.push(new Libro(id, librosLine[i]))
+  }
+}
+
+function getLibrerias(fichero) {
+  for (let i = 2; i < librerias * 2 + 1; i = i + 2) {
+    arrayLibrerias.push(new Libreria(fichero[i], fichero[i + 1]))
   }
 }
 
@@ -113,6 +119,12 @@ async function main() {
 
   console.log('Segunda linea \n')
   console.log(puntuaciones)
+
+  console.log('Get librerias\n')
+  getLibrerias(fichero)
+
+  console.log('Mostrando las librerias\n')
+  console.log(arrayLibrerias)
 }
 
 main()
