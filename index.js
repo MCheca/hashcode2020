@@ -4,6 +4,16 @@
 // s1: NUmeroLibrosEnLibreria NumeroDiasParaTerminarElSignUp NumeroLibrosQueSePuedenEscanearPorDia
 // s2: NumeroLibrosEnLibreria que contiene las ids
 
+// OUTPUT
+// A: Numero de librerias por signup
+// Las siguientes lineas son las librerias en orden que queramos que empiece el signup. Contendra:
+// IDLibreria NumeroLibrosAEscanear
+// IDLibrosEscanear
+
+/*
+Cosas claras: Hay que empezar por la libreria con el menor tiempo de sign up y con la mayor cantidad de libros
+*/
+
 const readline = require('readline')
 const fs = require('fs')
 
