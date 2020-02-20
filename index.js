@@ -122,15 +122,28 @@ async function main() {
   console.log(`Numero libros: ${libros}`)
   console.log(`Numero librerias: ${librerias}`)
   console.log(`Numero dias: ${dias}`)
-
-  console.log('Get libros')
+  console.log(`\n=========================\n`)
   getLibros(fichero)
-  console.log('Get librerias')
   getLibrerias(fichero)
 
-  console.log('Mostrando las librerias\n')
+  console.log('Mostrando las librerias')
   for (let libreria of arrayLibrerias) {
     console.log(libreria)
+  }
+
+  console.log('\nMostrando los libros')
+  for (let libro of arrayLibros) {
+    console.log(libro)
+  }
+
+  let lineasSalida = []
+
+  // Buscamos la primera libreria
+  let menorLibreria = arrayLibrerias[0]
+  for (let libreria of arrayLibrerias) {
+    if (libreria.dias < menorLibreria.dias) {
+      menor = libreria
+    }
   }
 }
 
