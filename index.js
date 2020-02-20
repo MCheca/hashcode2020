@@ -71,6 +71,8 @@ function getMetaData(fichero){
   puntuaciones = fichero[1].split(' ');
 }
 
+function getLibrerias()
+
 async function main(){
   var fichero = await leerFichero('./input/a_example.txt')
   getMetaData(fichero);
