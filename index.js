@@ -119,16 +119,19 @@ function getLibrerias(fichero) {
 async function main() {
   var fichero = await leerFichero('./input/a_example.txt')
   getMetaData(fichero)
-  console.log('Primera linea \n')
   console.log(`Numero libros: ${libros}`)
   console.log(`Numero librerias: ${librerias}`)
   console.log(`Numero dias: ${dias}`)
 
-  console.log('Get librerias\n')
+  console.log('Get libros')
+  getLibros(fichero)
+  console.log('Get librerias')
   getLibrerias(fichero)
 
   console.log('Mostrando las librerias\n')
-  console.log(arrayLibrerias)
+  for (let libreria of arrayLibrerias) {
+    console.log(libreria)
+  }
 }
 
 main()
