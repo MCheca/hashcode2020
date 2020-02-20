@@ -17,7 +17,10 @@ Cosas claras: Hay que empezar por la libreria con el menor tiempo de sign up y c
 const readline = require('readline')
 const fs = require('fs')
 
-let lineas = []
+let libros;
+let librerias;
+let dias;
+let puntuaciones;
 
 function leerFichero(filename) {
   return new Promise((res, rej) => {
@@ -57,9 +60,25 @@ function escribirSalida(lineas, filename) {
   wstream.end()
 }
 
+function getMetaData(fichero){
+  //Obtiene la primera linea
+  let aux = fichero[0].split(' ');
+  libros = aux[0];
+  librerias = aux[1];
+  dias = aux[2];
+
+  //Obtiene la segunda linea
+  puntuaciones = fichero[1].split(' ');
+}
+
 async function main(){
   var fichero = await leerFichero('./input/a_example.txt')
-  console.log(fichero)
+  getMetaData(fichero);
+  console.log("Primera linea \n")
+  console.log(libros +" - " + librerias + " - "+ dias );
+
+  console.log("Segunda linea \n")
+  console.log(puntuaciones)
 }
 
 main()
