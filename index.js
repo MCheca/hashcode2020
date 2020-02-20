@@ -25,6 +25,7 @@ let puntuaciones
 
 // Arrays
 let arrayLibrerias = []
+let arrayLibreriasB = []
 let arrayLibros = []
 
 function leerFichero(filename) {
@@ -80,7 +81,7 @@ class Libreria {
 
     this.id = actualLibraryID++
     this.cantidadLibros = Number(l1[0])
-    this.cantidadDias = Number(l1[1])
+    this.cantidadDias = Number(l1[1]) // Para el signup
     this.librosPorDia = Number(l1[2])
 
     // A libros vamos subiendo objetos de Libro
@@ -88,6 +89,36 @@ class Libreria {
     for (let libro of l2) {
       this.libros.push(arrayLibros[Number(libro)])
     }
+
+    //Ordenamos los libros de mas a menos valoracion
+    this.libros.sort(this.ordenarLibros)
+  }
+
+  ordenarLibros(a, b) {
+    const libroA = a.score
+    const libroB = b.score
+
+    let comparison = 0
+    if (libroA < libroB) {
+      comparison = 1
+    } else if (libroA > libroB) {
+      comparison = -1
+    }
+    return comparison
+  }
+
+  getSuma(Drestantes) {
+    Drestantes = Drestantes - this.cantidadDias
+    var suma = 0
+    var numero = Drestantes * this.librosPorDia
+    if (numero > this.cantidadLibros) {
+      numero = this.cantidadLibros
+    }
+
+    for (var i = 0; i < numero; i++) {
+      suma = suma + this.libros[i].score
+    }
+    return suma
   }
 }
 
@@ -116,34 +147,70 @@ function getLibrerias(fichero) {
   }
 }
 
+function algoritmo(restantes) {
+  var ganadora = 0
+  var sumaGanadora = arrayLibreriasB[0].getSuma(restantes)
+  for (let i = 1; i < arrayLibreriasB.length; i++) {
+    var sumaAux = arrayLibreriasB[i].getSuma(restantes)
+    if (sumaAux > sumaGanadora) {
+      ganadora = i
+      sumaGanadora = sumaAux
+    }
+  }
+  return [arrayLibreriasB[ganadora], ganadora]
+}
+
 async function main() {
-  var fichero = await leerFichero('./input/a_example.txt')
+  //var fichero = await leerFichero('./input/a_example.txt')
+  var fichero = await leerFichero('./input/e_so_many_books.txt')
   getMetaData(fichero)
-  console.log(`Numero libros: ${libros}`)
+  /*console.log(`Numero libros: ${libros}`)
   console.log(`Numero librerias: ${librerias}`)
   console.log(`Numero dias: ${dias}`)
-  console.log(`\n=========================\n`)
+  console.log(`\n=========================\n`)*/
+
   getLibros(fichero)
   getLibrerias(fichero)
+  arrayLibreriasB = arrayLibrerias
+  //console.log(arrayLibreriasB)
 
-  console.log('Mostrando las librerias')
+  //console.log('Mostrando las librerias')
   for (let libreria of arrayLibrerias) {
-    console.log(libreria)
+    //console.log(libreria)
   }
 
-  console.log('\nMostrando los libros')
+  //console.log('\nMostrando los libros')
   for (let libro of arrayLibros) {
-    console.log(libro)
+    //console.log(libro)
   }
 
+  // Lineas salida que luego pasaremos al array de salida
   let lineasSalida = []
+  //lineasSalida.push(String(librerias)) // Primera linea
+  console.log(librerias)
+  let acumulado = dias
+  while (acumulado > 0) {
+    let a = algoritmo(acumulado)
 
-  // Buscamos la primera libreria
-  let menorLibreria = arrayLibrerias[0]
-  for (let libreria of arrayLibrerias) {
-    if (libreria.dias < menorLibreria.dias) {
-      menor = libreria
+    let ganadora = a[1]
+    let libreriaActual = a[0]
+
+    arrayLibreriasB.splice(ganadora, 1)
+
+    //console.log(libreriaActual)
+    let librosEscanear = acumulado - libreriaActual.cantidadDias
+    if (librosEscanear > libreriaActual.cantidadLibros) {
+      librosEscanear = libreriaActual.cantidadLibros
     }
+    console.log(`${libreriaActual.id} ${librosEscanear}`) // Numero de libros a escanear
+
+    let l2 = ''
+    for (let i = 0; i < librosEscanear; i++) {
+      l2 += libreriaActual.libros[i].id + ' '
+    }
+    console.log(l2)
+
+    acumulado -= libreriaActual.cantidadDias // Pasamos del tiempo que estamos en signup
   }
 }
 
