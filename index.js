@@ -120,10 +120,9 @@ async function main() {
   var fichero = await leerFichero('./input/a_example.txt')
   getMetaData(fichero)
   console.log('Primera linea \n')
-  console.log(libros + ' - ' + librerias + ' - ' + dias)
-
-  console.log('Segunda linea \n')
-  console.log(puntuaciones)
+  console.log(`Numero libros: ${libros}`)
+  console.log(`Numero librerias: ${librerias}`)
+  console.log(`Numero dias: ${dias}`)
 
   console.log('Get librerias\n')
   getLibrerias(fichero)
