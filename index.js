@@ -19,10 +19,12 @@ const fs = require('fs')
 const path = require('path')
 
 let actualLibraryID = 0
+let actualBookID = 0
 let libros
 let librerias = []
 let dias
 let puntuaciones
+let arrayLibros = []
 
 function leerFichero(filename) {
   return new Promise((res, rej) => {
@@ -62,10 +64,18 @@ function escribirSalida(lineas, filename) {
   wstream.end()
 }
 
+class Libro {
+  constructor(id, score) {
+    this.id = id
+    this.score = score
+  }
+}
+
 class Libreria {
   constructor(l1, l2) {
     l1 = l1.split(' ')
     l2 = l2.split(' ')
+
     this.id = actualLibraryID++
     this.cantidadLibros = l1[0]
     this.cantidadDias = l1[1]
@@ -85,9 +95,17 @@ function getMetaData(fichero) {
   puntuaciones = fichero[1].split(' ')
 }
 
-function getLibrerias()
+function getLibrerias() {}
 
-async function main(){
+function getLibros(fichero) {
+  let librosLine = fichero[1].split(' ')
+
+  for (let i = 0; i < libros; i++) {
+    arrayLibros.push(new Libro(id, librosLine[i]))
+  }
+}
+
+async function main() {
   var fichero = await leerFichero('./input/a_example.txt')
   getMetaData(fichero)
   console.log('Primera linea \n')
