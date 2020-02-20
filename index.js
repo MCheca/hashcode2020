@@ -16,33 +16,35 @@ Cosas claras: Hay que empezar por la libreria con el menor tiempo de sign up y c
 
 const readline = require('readline')
 const fs = require('fs')
+const path = require('path')
 
-let libros;
-let librerias;
-let dias;
-let puntuaciones;
+let actualLibraryID = 0
+let libros
+let librerias = []
+let dias
+let puntuaciones
 
 function leerFichero(filename) {
   return new Promise((res, rej) => {
     try {
-        var text = [];
-        var readInterface = readline.createInterface({
-            input: fs.createReadStream(filename),
-            terminal: false
-        });
+      var text = []
+      var readInterface = readline.createInterface({
+        input: fs.createReadStream(filename),
+        terminal: false
+      })
 
-        readInterface
-            .on('line', function (line) {
-                line = line.trim();
-                text.push(line);
-            })
-            .on('close', function () {
-                res(text);
-            });
-    } catch(err){
-        rej(err)
+      readInterface
+        .on('line', function(line) {
+          line = line.trim()
+          text.push(line)
+        })
+        .on('close', function() {
+          res(text)
+        })
+    } catch (err) {
+      rej(err)
     }
-});
+  })
 }
 
 function escribirSalida(lineas, filename) {
@@ -60,28 +62,39 @@ function escribirSalida(lineas, filename) {
   wstream.end()
 }
 
-function getMetaData(fichero){
+class Libreria {
+  constructor(l1, l2) {
+    l1 = l1.split(' ')
+    l2 = l2.split(' ')
+    this.id = actualLibraryID++
+    this.cantidadLibros = l1[0]
+    this.cantidadDias = l1[1]
+    this.librosPorDia = l1[1]
+    this.libros = l2.split(' ')
+  }
+}
+
+function getMetaData(fichero) {
   //Obtiene la primera linea
-  let aux = fichero[0].split(' ');
-  libros = aux[0];
-  librerias = aux[1];
-  dias = aux[2];
+  let aux = fichero[0].split(' ')
+  libros = aux[0]
+  librerias = aux[1]
+  dias = aux[2]
 
   //Obtiene la segunda linea
-  puntuaciones = fichero[1].split(' ');
+  puntuaciones = fichero[1].split(' ')
 }
 
 function getLibrerias()
 
 async function main(){
   var fichero = await leerFichero('./input/a_example.txt')
-  getMetaData(fichero);
-  console.log("Primera linea \n")
-  console.log(libros +" - " + librerias + " - "+ dias );
+  getMetaData(fichero)
+  console.log('Primera linea \n')
+  console.log(libros + ' - ' + librerias + ' - ' + dias)
 
-  console.log("Segunda linea \n")
+  console.log('Segunda linea \n')
   console.log(puntuaciones)
 }
 
 main()
-
