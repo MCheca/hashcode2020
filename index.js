@@ -88,7 +88,22 @@ class Libreria {
     for (let libro of l2) {
       this.libros.push(arrayLibros[Number(libro)])
     }
+    //Ordenamos los libros de mas a menos valoracion
+    this.libros.sort(this.ordenarLibros);
   }
+
+  ordenarLibros(a,b) {
+      const libroA = a.score
+      const libroB = b.score
+    
+      let comparison = 0;
+      if (libroA < libroB) {
+        comparison = 1;
+      } else if (libroA > libroB) {
+        comparison = -1;
+      }
+      return comparison;
+    }
 }
 
 function getMetaData(fichero) {
