@@ -20,9 +20,10 @@ const path = require('path')
 
 let actualLibraryID = 0
 let libros
-let librerias = []
+let librerias
 let dias
-let puntuaciones
+let puntuaciones = []
+let arrayLibrerias = []
 
 function leerFichero(filename) {
   return new Promise((res, rej) => {
@@ -63,6 +64,7 @@ function escribirSalida(lineas, filename) {
 }
 
 class Libreria {
+ 
   constructor(l1, l2) {
     l1 = l1.split(' ')
     l2 = l2.split(' ')
@@ -70,7 +72,7 @@ class Libreria {
     this.cantidadLibros = l1[0]
     this.cantidadDias = l1[1]
     this.librosPorDia = l1[1]
-    this.libros = l2.split(' ')
+    this.libros = l2
   }
 }
 
@@ -85,7 +87,12 @@ function getMetaData(fichero) {
   puntuaciones = fichero[1].split(' ')
 }
 
-function getLibrerias()
+function getLibrerias(fichero){
+
+  for(let i=2;i<librerias*2+1;i=i+2){
+    arrayLibrerias.push(new Libreria(fichero[i], fichero[i+1]))
+  }
+}
 
 async function main(){
   var fichero = await leerFichero('./input/a_example.txt')
@@ -95,6 +102,12 @@ async function main(){
 
   console.log('Segunda linea \n')
   console.log(puntuaciones)
+
+  console.log("Get librerias\n")
+  getLibrerias(fichero)
+
+  console.log("Mostrando las librerias\n")
+  console.log(arrayLibrerias)
 }
 
 main()
