@@ -18,15 +18,14 @@ const readline = require('readline')
 const fs = require('fs')
 const path = require('path')
 
-let actualLibraryID = 0
-let actualBookID = 0
-let libros
-let librerias
-let dias
+let libros // Numero de libros
+let librerias // Numero de librerias
+let dias // Numero dias totales
 let puntuaciones
-let arrayLibros = []
-let puntuaciones = []
+
+// Arrays
 let arrayLibrerias = []
+let arrayLibros = []
 
 function leerFichero(filename) {
   return new Promise((res, rej) => {
@@ -73,16 +72,22 @@ class Libro {
   }
 }
 
+let actualLibraryID = 0 // Auxiliar para Libreria
 class Libreria {
   constructor(l1, l2) {
     l1 = l1.split(' ')
     l2 = l2.split(' ')
 
     this.id = actualLibraryID++
-    this.cantidadLibros = l1[0]
-    this.cantidadDias = l1[1]
-    this.librosPorDia = l1[2]
-    this.libros = l2
+    this.cantidadLibros = Number(l1[0])
+    this.cantidadDias = Number(l1[1])
+    this.librosPorDia = Number(l1[2])
+
+    // A libros vamos subiendo objetos de Libro
+    this.libros = []
+    for (let libro of l2) {
+      this.libros.push(arrayLibros[Number(libro)])
+    }
   }
 }
 
