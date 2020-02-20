@@ -101,7 +101,7 @@ function getLibros(fichero) {
   let librosLine = fichero[1].split(' ')
 
   for (let i = 0; i < libros; i++) {
-    arrayLibros.push(new Libro(id, librosLine[i]))
+    arrayLibros.push(new Libro(i, librosLine[i]))
   }
 }
 
