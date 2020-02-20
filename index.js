@@ -10,15 +10,26 @@ const fs = require('fs')
 let lineas = []
 
 function leerFichero(filename) {
-  const readInterface = readline.createInterface({
-    input: fs.createReadStream(filename)
-  })
+  return new Promise((res, rej) => {
+    try {
+        var text = [];
+        var readInterface = readline.createInterface({
+            input: fs.createReadStream(filename),
+            terminal: false
+        });
 
-  readInterface.on('line', function(line) {
-    // Leemos todas las lineas del fichero @line es cada linea
-    lineas.push(line)
-    console.log(line)
-  })
+        readInterface
+            .on('line', function (line) {
+                line = line.trim();
+                text.push(line);
+            })
+            .on('close', function () {
+                res(text);
+            });
+    } catch(err){
+        rej(err)
+    }
+});
 }
 
 function escribirSalida(lineas, filename) {
@@ -36,6 +47,10 @@ function escribirSalida(lineas, filename) {
   wstream.end()
 }
 
-leerFichero('a_example.in')
-escribirSalida(lineas, 'exit.out')
-console.log(lineas)
+async function main(){
+  var fichero = await leerFichero('./input/a_example.txt')
+  console.log(fichero)
+}
+
+main()
+
