@@ -17,6 +17,7 @@ const readline = require('readline')
 // Leer que ficheros hay
 const listInputs = dir => {
   return new Promise((resolve, reject) => {
+    // return resolve(['b_read_on.txt']) // Para hacer un fichero en especifico
     fs.readdir(dir, (err, filenames) => {
       if (err) reject(err)
       resolve(filenames)
@@ -49,6 +50,20 @@ const readInput = inputFile => {
     })
   })
 }
+// Escribir fichero especifico
+const writeOutput = (outputFile, lines) => {
+  return new Promise((resolve, reject) => {
+    const writeStream = fs.createWriteStream(
+      path.join(__dirname, 'output', outputFile)
+    )
+
+    for (let line in lines) {
+      line = lines[line] + '\n'
+
+      writeStream.write(line, 'utf8') // A lo mejor deberiamos hacer esta funcion async
+    }
+  })
+}
 
 class Libro {
   constructor(id, score) {
@@ -65,10 +80,10 @@ class Libreria {
     this.librosDia = librosDia
     this.libros = libros // Array de objetos ordenados por score de Libro
 
-    // A libros vamos subiendo objetos de Libro
-    /*for (let libro of l2) {
-      this.libros.push(arrayLibros[Number(libro)])
-    }*/
+    // Ordenamos los libros por score
+    this.libros.sort((a, b) => {
+      return b.score - a.score
+    })
   }
 }
 
@@ -78,12 +93,11 @@ const main = async () => {
   // Loop para cada archivo
   for (let inputFile of inputList) {
     const input = await readInput(inputFile)
-    //const input = await readInput('a_example.txt')
-    //let inputFile = 'a_example.txt'
 
     // Declaramos las variables
     let libros = [] // Array de objetos de Libro. Ordenado por su id
     let librerias = [] // Array de objetos de Libreria. Ordenado por su id
+    let output = []
 
     // Parseamos la primera linea
     const totalLibros = input[0].split(' ')[0]
@@ -95,8 +109,9 @@ const main = async () => {
     )
 
     // Parseamos la segunda linea (los libros y sus scores)
-    for (let libro in input[1].split(' ')) {
-      let objeto = new Libro(libro, input[1].split(' ')[libro])
+    let librosLine = input[1].split(' ')
+    for (let libro in librosLine) {
+      let objeto = new Libro(libro, librosLine[libro])
       libros.push(objeto)
     }
 
@@ -123,6 +138,29 @@ const main = async () => {
     }
 
     // TODO PARSEADO
+    // Ordenamos las librerias por dias
+    librerias.sort((a, b) => {
+      return a.signupDias - b.signupDias
+    })
+
+    // for (let libreria of librerias) console.log(libreria)
+
+    // Preparar output
+    output.push(totalLibrerias) // Estamos subiendo un numero cuando debe ser un string, no se si dara igual
+
+    for (let libreria of librerias) {
+      output.push(libreria.id + ' ' + libreria.cantidadLibros)
+
+      let outputLibros = ''
+      for (let libro of libreria.libros) {
+        outputLibros += libro.id + ' '
+      }
+      output.push(outputLibros)
+    }
+
+    writeOutput(inputFile, output)
+
+    console.log('')
   }
 }
 main()
