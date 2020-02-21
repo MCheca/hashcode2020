@@ -160,9 +160,10 @@ const main = async () => {
     // for (let libreria of librerias) console.log(libreria) // Debugging
 
     // Preparar output
-    output.push(String(totalLibrerias)) // Primera linea del output
+    output.push(String(totalLibrerias)) // Primera linea del output (luego la editamos)
 
     let librosEscaneados = []
+    let libreriasSignup = 0
     for (let libreria of librerias) {
       let outputLibros = ''
 
@@ -176,10 +177,12 @@ const main = async () => {
       }
 
       if (cantidadOutputLibros != 0) {
+        libreriasSignup++ // Significaria que hemos metido una nueva libreria
         output.push(libreria.id + ' ' + cantidadOutputLibros)
         output.push(outputLibros)
       }
     }
+    output[0] = libreriasSignup // Ponemos la cantidad correcta de librerias
 
     writeOutput(inputFile, output)
 
