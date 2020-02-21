@@ -157,19 +157,28 @@ const main = async () => {
       return a.signupDias - b.signupDias
     })
 
-    // for (let libreria of librerias) console.log(libreria)
+    // for (let libreria of librerias) console.log(libreria) // Debugging
 
     // Preparar output
-    output.push(totalLibrerias) // Estamos subiendo un numero cuando debe ser un string, no se si dara igual
+    output.push(String(totalLibrerias)) // Primera linea del output
 
+    let librosEscaneados = []
     for (let libreria of librerias) {
-      output.push(libreria.id + ' ' + libreria.cantidadLibros)
-
       let outputLibros = ''
+
+      let cantidadOutputLibros = 0
       for (let libro of libreria.libros) {
-        outputLibros += libro.id + ' '
+        if (!librosEscaneados.includes(libro.id)) {
+          outputLibros += libro.id + ' '
+          cantidadOutputLibros++
+          librosEscaneados.push(libro.id)
+        }
       }
-      output.push(outputLibros)
+
+      if (cantidadOutputLibros != 0) {
+        output.push(libreria.id + ' ' + cantidadOutputLibros)
+        output.push(outputLibros)
+      }
     }
 
     writeOutput(inputFile, output)
