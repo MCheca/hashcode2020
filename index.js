@@ -17,7 +17,7 @@ const readline = require('readline')
 // Leer que ficheros hay
 const listInputs = dir => {
   return new Promise((resolve, reject) => {
-    // return resolve(['a_example.txt']) // Para hacer un fichero en especifico
+    return resolve(['a_example.txt']) // Para hacer un fichero en especifico
 
     const inputDir = path.join(__dirname, 'input')
     // Comprobamos que exista el directorio input
@@ -100,6 +100,42 @@ class Libreria {
   }
 }
 
+// Busca la mejor libreria que dar de alta en relacion con el tiempo restante de dias
+const searchBestLibrary = (diasRestantes, librerias, librosEscaneados) => {
+  let bestLibrary = librerias[0]
+  let bestLibraryScore = 0
+
+  // Para cada libreria calculamos el score que daria si fuera la siguiente en ser dada de alta
+  for (let libreria in librerias) {
+    let currentLibraryScore = 0
+
+    let librosPuedeEscanear = [] // Array de objetos los libros que puede escanear
+    for (let libro of librerias[libreria].libros) {
+      if (!librosEscaneados.includes(libro.id)) {
+        librosPuedeEscanear.push(libro)
+      }
+    }
+
+    // Decidimos cual es la cantidad total de libros que podria escanear
+    let maxLibrosEscanear = diasRestantes * librerias[libreria].librosDia // Maximo numero de libros que le da tiempo a escanear
+    if (librosPuedeEscanear.length > maxLibrosEscanear) {
+      librosPuedeEscanear = librosPuedeEscanear.slice(0, maxLibrosEscanear)
+    }
+
+    // Calculamos el maximo score que obtendriamos con esta libreria
+    for (let libro of librosPuedeEscanear) {
+      currentLibraryScore += libro.score
+    }
+
+    if (currentLibraryScore > bestLibraryScore) {
+      bestLibrary = librerias[libreria]
+      bestLibraryScore = currentLibraryScore
+    }
+  }
+
+  return bestLibrary // Tendriamos que eliminar de librerias la libreria que hayamos sacado como bestLibrary
+}
+
 const main = async () => {
   const inputList = await listInputs(path.join(__dirname, 'input'))
 
@@ -108,13 +144,13 @@ const main = async () => {
     const input = await readInput(inputFile)
 
     // Declaramos las variables
-    let libros = [] // Array de objetos de Libro. Ordenado por su id
+    let libros = [] // Array de objetos de Libro. Ordenado por su id (practicamente ni se usa)
     let librerias = [] // Array de objetos de Libreria. Ordenado por su id
 
     // Parseamos la primera linea
-    const totalLibros = input[0].split(' ')[0]
-    const totalLibrerias = input[0].split(' ')[1]
-    const totalDias = input[0].split(' ')[2]
+    const totalLibros = Number(input[0].split(' ')[0])
+    const totalLibrerias = Number(input[0].split(' ')[1])
+    const totalDias = Number(input[0].split(' ')[2])
 
     console.log(
       `${inputFile}:\n - totalLibros: ${totalLibros}\n - totalLibrerias: ${totalLibrerias}\n - totalDias: ${totalDias}`
@@ -152,6 +188,8 @@ const main = async () => {
     // ===================== TODO PARSEADO =====================
 
     let output = []
+    let librosEscaneados = []
+    let diasPasados = 0
 
     // Ordenamos las librerias por dias
     librerias.sort((a, b) => {
@@ -161,33 +199,16 @@ const main = async () => {
     // for (let libreria of librerias) console.log(libreria) // Debugging
 
     // Preparar output
-    output.push(String(totalLibrerias)) // Primera linea del output (luego la editamos)
+    output.push(String(totalLibrerias)) // Primera linea del output (posiblemente luego es editada)
 
-    let librosEscaneados = []
-    let libreriasSignup = 0
-    let diasPasados = 0
-    for (let libreria of librerias) {
-      if (diasPasados > totalDias) continue
-      let outputLibros = ''
+    let bestLibrary = searchBestLibrary(
+      totalDias - diasPasados,
+      librerias,
+      librosEscaneados
+    )
+    console.log(bestLibrary)
 
-      let cantidadOutputLibros = 0
-      for (let libro of libreria.libros) {
-        if (!librosEscaneados.includes(libro.id)) {
-          outputLibros += libro.id + ' '
-          cantidadOutputLibros++
-          librosEscaneados.push(libro.id)
-        }
-      }
-
-      if (cantidadOutputLibros != 0) {
-        libreriasSignup++ // Significaria que hemos metido una nueva libreria
-        output.push(libreria.id + ' ' + cantidadOutputLibros)
-        output.push(outputLibros)
-      }
-      diasPasados += libreria.signupDias
-    }
-    output[0] = libreriasSignup // Ponemos la cantidad correcta de librerias
-
+    // Escribir output
     writeOutput(inputFile, output)
 
     console.log('')
