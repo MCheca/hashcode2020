@@ -18,6 +18,14 @@ const readline = require('readline')
 const listInputs = dir => {
   return new Promise((resolve, reject) => {
     // return resolve(['b_read_on.txt']) // Para hacer un fichero en especifico
+
+    const inputDir = path.join(__dirname, 'input')
+    // Comprobamos que exista el directorio input
+    if (!fs.existsSync(inputDir)) {
+      fs.mkdirSync(inputDir)
+      throw new Error('Debes introducir los archivos input en la carpeta input')
+    }
+
     fs.readdir(dir, (err, filenames) => {
       if (err) reject(err)
       resolve(filenames)
@@ -53,9 +61,14 @@ const readInput = inputFile => {
 // Escribir fichero especifico
 const writeOutput = (outputFile, lines) => {
   return new Promise((resolve, reject) => {
-    const writeStream = fs.createWriteStream(
-      path.join(__dirname, 'output', outputFile)
-    )
+    const outputDir = path.join(__dirname, 'output')
+
+    // Comprobamos que expista el directorio output
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir)
+    }
+
+    const writeStream = fs.createWriteStream(path.join(outputDir, outputFile))
 
     for (let line in lines) {
       line = lines[line] + '\n'
@@ -137,7 +150,8 @@ const main = async () => {
       actualLibraryID++
     }
 
-    // TODO PARSEADO
+    // ===================== TODO PARSEADO =====================
+
     // Ordenamos las librerias por dias
     librerias.sort((a, b) => {
       return a.signupDias - b.signupDias
