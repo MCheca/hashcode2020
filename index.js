@@ -89,6 +89,7 @@ class Libreria {
     for (let libro of l2) {
       this.libros.push(arrayLibros[Number(libro)])
     }
+<<<<<<< HEAD
 
     //Ordenamos los libros de mas a menos valoracion
     this.libros.sort(this.ordenarLibros)
@@ -119,7 +120,24 @@ class Libreria {
       suma = suma + this.libros[i].score
     }
     return suma
+=======
+    //Ordenamos los libros de mas a menos valoracion
+    this.libros.sort(this.ordenarLibros);
+>>>>>>> 1dd0eb151f50d019b81e305f6ca898cd3b8a44a3
   }
+
+  ordenarLibros(a,b) {
+      const libroA = a.score
+      const libroB = b.score
+    
+      let comparison = 0;
+      if (libroA < libroB) {
+        comparison = 1;
+      } else if (libroA > libroB) {
+        comparison = -1;
+      }
+      return comparison;
+    }
 }
 
 function getMetaData(fichero) {
