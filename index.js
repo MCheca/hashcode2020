@@ -17,7 +17,7 @@ const readline = require('readline')
 // Leer que ficheros hay
 const listInputs = dir => {
   return new Promise((resolve, reject) => {
-    // return resolve(['b_read_on.txt']) // Para hacer un fichero en especifico
+    // return resolve(['b_read_on.txt']) // Para hacer solo un fichero en especifico
 
     const inputDir = path.join(__dirname, 'input')
     // Comprobamos que exista el directorio input
@@ -82,6 +82,7 @@ class Libro {
   constructor(id, score) {
     this.id = Number(id)
     this.score = Number(score)
+    this.scanned = false
   }
 }
 
@@ -101,18 +102,20 @@ class Libreria {
 }
 
 // Busca la mejor libreria que dar de alta en relacion con el tiempo restante de dias
-const searchBestLibrary = (diasRestantes, librerias, librosEscaneados) => {
+const searchBestLibrary = (diasRestantes, librerias, libros) => {
   let bestLibrary = librerias[0]
   let bestLibraryScore = 0
   let bestLibraryLibrosPuedeEscanear = librerias[0].libros
 
   // Para cada libreria calculamos el score que daria si fuera la siguiente en ser dada de alta
+  console.log(librerias.length)
   for (let libreria in librerias) {
     let currentLibraryScore = 0
 
     let librosPuedeEscanear = [] // Array de objetos los libros que puede escanear
     for (let libro of librerias[libreria].libros) {
-      if (!librosEscaneados.includes(libro.id)) {
+      //if (!librosEscaneados.includes(libro.id)) {
+      if (libros[libro.id].scanned == false) {
         librosPuedeEscanear.push(libro)
       }
     }
@@ -191,9 +194,10 @@ const main = async () => {
 
     // ===================== TODO PARSEADO =====================
 
-    let output = []
-    let librosEscaneados = [] // Contiene las id de los libros escaneados
+    let output = [] // Cada elemento debe ser una linea del output
+    //let librosEscaneados = [] // Contiene las id de los libros escaneados
     let diasPasados = 0
+    let numeroFinalLibrerias = 0
 
     // Ordenamos las librerias por dias
     librerias.sort((a, b) => {
@@ -205,34 +209,30 @@ const main = async () => {
     // Preparar output
     output.push(String(totalLibrerias)) // Primera linea del output (posiblemente luego es editada)
 
-    let numeroFinalLibrerias = 0
     while (totalDias - diasPasados > 0 && librerias.length > 0) { // Buscamos la mejor libreria para los dias restantes
       let bestLibrarySearch = searchBestLibrary(
         totalDias - diasPasados,
         librerias,
-        librosEscaneados
+        libros
       )
-      let bestLibrary = bestLibrarySearch[0] // Es un objeto de Libreria
-      let librosPuedeEscanear = bestLibrarySearch[1] // Es un array de objetos de Libro. Esta es ya directamente la cantidad de libros que puede escanear sin pasarse
+      let bestLibrary = bestLibrarySearch[0] // Objeto de Libreria
+      let bestLibraryLibrosPuedeEscanear = bestLibrarySearch[1] // Array de objetos de Libro
 
-      if (bestLibrary.signupDias < totalDias - diasPasados) { // El numero dias que tarde en dar de alta debe ser menor que el total de dias restante para que merezca la pena meterlo en el archivo de salida
-        // Eliminamos bestLibrary del array de librerias
-        librerias.splice(librerias.indexOf(bestLibrary), 1)
-
-        numeroFinalLibrerias++
-
-        let librosString = ''
-        for (let libroEscanear of librosPuedeEscanear) {
-          librosEscaneados.push(libroEscanear.id)
-          librosString += libroEscanear.id + ' '
+      if (bestLibrary.signupDias < totalDias - diasPasados) { // El numero de dias que tarda en darse de alta debe ser menor que el numero de dias que quedan
+        let librosLine = ''
+        for (let libro of bestLibraryLibrosPuedeEscanear) {
+          libros[libro.id].scanned = true
+          librosLine += libro.id + ' '
         }
 
-        output.push(`${bestLibrary.id} ${librosPuedeEscanear.length}`)
-        output.push(librosString)
-        console.log(`a`)
+        // Eliminamos la libreria
+        librerias.splice(librerias.indexOf(bestLibrary), 1)
 
-        //console.log(bestLibrary)
+        output.push(`${bestLibrary.id} ${bestLibraryLibrosPuedeEscanear.length}`)
+        output.push(librosLine)
+        numeroFinalLibrerias++
       }
+
       diasPasados += bestLibrary.signupDias
     }
 
