@@ -117,7 +117,7 @@ const searchBestLibrary = (diasRestantes, librerias, librosEscaneados) => {
     }
 
     // Decidimos cual es la cantidad total de libros que podria escanear
-    let maxLibrosEscanear = diasRestantes * librerias[libreria].librosDia // Maximo numero de libros que le da tiempo a escanear
+    let maxLibrosEscanear = (diasRestantes - librerias[libreria].signupDias) * librerias[libreria].librosDia // Maximo numero de libros que le da tiempo a escanear
     if (librosPuedeEscanear.length > maxLibrosEscanear) {
       librosPuedeEscanear = librosPuedeEscanear.slice(0, maxLibrosEscanear)
     }
@@ -127,6 +127,7 @@ const searchBestLibrary = (diasRestantes, librerias, librosEscaneados) => {
       currentLibraryScore += libro.score
     }
 
+    // Si el score de esta es mejor, sustituimos la mejor hasta ahora
     if (currentLibraryScore > bestLibraryScore) {
       bestLibrary = librerias[libreria]
       bestLibraryScore = currentLibraryScore
