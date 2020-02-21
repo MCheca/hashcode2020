@@ -15,12 +15,12 @@ const path = require('path');
 const readline = require('readline');
 
 let librerias = []; // Array de objetos de Libreria. Ordenado por su id
-let librosEscaneados = [];
+let librosEscaneados = new Array(1000000);
 
 // Leer que ficheros hay
 const listInputs = (dir) => {
   return new Promise((resolve, reject) => {
-    return resolve(['e_so_many_books.txt']); // Para hacer un fichero en especifico
+    return resolve(['f_libraries_of_the_world.txt']); // Para hacer un fichero en especifico
 
     const inputDir = path.join(__dirname, 'input');
     // Comprobamos que exista el directorio input
@@ -120,8 +120,8 @@ const searchBestLibrary = (diasRestantes, librerias, librosEscaneados) => {
 
     let librosPuedeEscanear = []; // Array de objetos los libros que puede escanear
     for (let libro of librerias[libreria].libros) {
-      if (!librosEscaneados.includes(libro.id)) {
-        librosPuedeEscanear.push(libro);
+      if (typeof librosEscaneados[libro.id] === 'undefined') {
+        librosPuedeEscanear[libro.id] = libro;
       }
     }
 
@@ -135,7 +135,10 @@ const searchBestLibrary = (diasRestantes, librerias, librosEscaneados) => {
 
     // Calculamos el maximo score que obtendriamos con esta libreria
     for (let libro of librosPuedeEscanear) {
-      currentLibraryScore += libro.score;
+      if (typeof librosPuedeEscanear[libro] !== 'undefined') {
+        currentLibraryScore += libro.score;
+        console.log('AQUIN\nHOLA');
+      }
     }
 
     // Si el score de esta es mejor, sustituimos la mejor hasta ahora
@@ -224,6 +227,12 @@ const main = async () => {
       bestLibrary[1].forEach((element) => {
         librosLibreria += `${element.id} `;
       });
+
+      for (let libroEscanear of bestLibrary[1]) {
+        librosEscaneados[libroEscanear.id] = libroEscanear.id;
+        //librosString += libroEscanear.id + ' ';
+      }
+
       output.push(librosLibreria);
       const index = librerias.indexOf(bestLibrary[0]);
       console.log(index);
