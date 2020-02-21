@@ -17,7 +17,7 @@ const readline = require('readline')
 // Leer que ficheros hay
 const listInputs = dir => {
   return new Promise((resolve, reject) => {
-    // return resolve(['b_read_on.txt']) // Para hacer un fichero en especifico
+    // return resolve(['a_example.txt']) // Para hacer un fichero en especifico
 
     const inputDir = path.join(__dirname, 'input')
     // Comprobamos que exista el directorio input
@@ -80,17 +80,17 @@ const writeOutput = (outputFile, lines) => {
 
 class Libro {
   constructor(id, score) {
-    this.id = id
-    this.score = score
+    this.id = Number(id)
+    this.score = Number(score)
   }
 }
 
 class Libreria {
   constructor(id, cantidadLibros, signupDias, librosDia, libros) {
-    this.id = id
-    this.cantidadLibros = cantidadLibros
-    this.signupDias = signupDias
-    this.librosDia = librosDia
+    this.id = Number(id)
+    this.cantidadLibros = Number(cantidadLibros)
+    this.signupDias = Number(signupDias)
+    this.librosDia = Number(librosDia)
     this.libros = libros // Array de objetos ordenados por score de Libro
 
     // Ordenamos los libros por score
@@ -164,7 +164,9 @@ const main = async () => {
 
     let librosEscaneados = []
     let libreriasSignup = 0
+    let diasPasados = 0
     for (let libreria of librerias) {
+      if (diasPasados > totalDias) continue
       let outputLibros = ''
 
       let cantidadOutputLibros = 0
@@ -181,6 +183,7 @@ const main = async () => {
         output.push(libreria.id + ' ' + cantidadOutputLibros)
         output.push(outputLibros)
       }
+      diasPasados += libreria.signupDias
     }
     output[0] = libreriasSignup // Ponemos la cantidad correcta de librerias
 
