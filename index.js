@@ -104,6 +104,7 @@ class Libreria {
 const searchBestLibrary = (diasRestantes, librerias, librosEscaneados) => {
   let bestLibrary = librerias[0]
   let bestLibraryScore = 0
+  let bestLibraryLibrosPuedeEscanear = librerias[0].libros
 
   // Para cada libreria calculamos el score que daria si fuera la siguiente en ser dada de alta
   for (let libreria in librerias) {
@@ -131,10 +132,11 @@ const searchBestLibrary = (diasRestantes, librerias, librosEscaneados) => {
     if (currentLibraryScore > bestLibraryScore) {
       bestLibrary = librerias[libreria]
       bestLibraryScore = currentLibraryScore
+      bestLibraryLibrosPuedeEscanear = librosPuedeEscanear
     }
   }
 
-  return bestLibrary // Tendriamos que eliminar de librerias la libreria que hayamos sacado como bestLibrary
+  return [bestLibrary, bestLibraryLibrosPuedeEscanear] // Tendriamos que eliminar de librerias la libreria que hayamos sacado como bestLibrary
 }
 
 const main = async () => {
