@@ -110,7 +110,6 @@ const main = async () => {
     // Declaramos las variables
     let libros = [] // Array de objetos de Libro. Ordenado por su id
     let librerias = [] // Array de objetos de Libreria. Ordenado por su id
-    let output = []
 
     // Parseamos la primera linea
     const totalLibros = input[0].split(' ')[0]
@@ -151,6 +150,8 @@ const main = async () => {
     }
 
     // ===================== TODO PARSEADO =====================
+
+    let output = []
 
     // Ordenamos las librerias por dias
     librerias.sort((a, b) => {
