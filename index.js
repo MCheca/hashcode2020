@@ -14,13 +14,10 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 
-let librerias = []; // Array de objetos de Libreria. Ordenado por su id
-let librosEscaneados = new Array(1000000);
-
 // Leer que ficheros hay
 const listInputs = (dir) => {
   return new Promise((resolve, reject) => {
-    return resolve(['f_libraries_of_the_world.txt']); // Para hacer un fichero en especifico
+    //return resolve(['f_libraries_of_the_world.txt']); // Para hacer solo un fichero en especifico
 
     const inputDir = path.join(__dirname, 'input');
     // Comprobamos que exista el directorio input
@@ -87,6 +84,7 @@ class Libro {
   constructor(id, score) {
     this.id = Number(id);
     this.score = Number(score);
+    this.scanned = false;
   }
 }
 
@@ -96,59 +94,71 @@ class Libreria {
     this.cantidadLibros = Number(cantidadLibros);
     this.signupDias = Number(signupDias);
     this.librosDia = Number(librosDia);
+
     this.libros = libros; // Array de objetos ordenados por score de Libro
 
     // Ordenamos los libros por score
     this.libros.sort((a, b) => {
       return b.score - a.score;
     });
-
-    this.puntuacion =
-      this.signupDias + (this.librosDia * this.cantidadLibros) ** -1;
   }
 }
+let tscore = 0;
 
 // Busca la mejor libreria que dar de alta en relacion con el tiempo restante de dias
-const searchBestLibrary = (diasRestantes, librerias, librosEscaneados) => {
+const searchBestLibrary = (diasRestantes, librerias, libros) => {
+  //console.log('Dias restantes --> ' + diasRestantes);
   let bestLibrary = librerias[0];
-  let bestLibraryScore = 0;
   let bestLibraryLibrosPuedeEscanear = librerias[0].libros;
+  let bestLibraryScore = 0;
+  let puntos = 0;
 
   // Para cada libreria calculamos el score que daria si fuera la siguiente en ser dada de alta
+  //console.log(librerias.length)
   for (let libreria in librerias) {
     let currentLibraryScore = 0;
+    let lb_dia = librerias[libreria].librosDia;
 
     let librosPuedeEscanear = []; // Array de objetos los libros que puede escanear
     for (let libro of librerias[libreria].libros) {
-      if (typeof librosEscaneados[libro.id] === 'undefined') {
-        librosPuedeEscanear[libro.id] = libro;
+      //if (!librosEscaneados.includes(libro.id)) {
+      if (libros[libro.id].scanned == false) {
+        librosPuedeEscanear.push(libro);
       }
     }
 
     // Decidimos cual es la cantidad total de libros que podria escanear
-    let maxLibrosEscanear =
-      (diasRestantes - librerias[libreria].signupDias) *
-      librerias[libreria].librosDia; // Maximo numero de libros que le da tiempo a escanear
-    if (librosPuedeEscanear.length > maxLibrosEscanear) {
-      librosPuedeEscanear = librosPuedeEscanear.slice(0, maxLibrosEscanear);
-    }
+    if (diasRestantes - librerias[libreria].signupDias > 0) {
+      let maxLibrosEscanear =
+        (diasRestantes - librerias[libreria].signupDias) *
+        librerias[libreria].librosDia; // Maximo numero de libros que le da tiempo a escanear
 
-    // Calculamos el maximo score que obtendriamos con esta libreria
-    for (let libro of librosPuedeEscanear) {
-      if (typeof librosPuedeEscanear[libro] !== 'undefined') {
+      /*console.info(
+        `Dias (${diasRestantes}) - Max Libros (${librerias[libreria].signupDias}) - Libros Dia (${librerias[libreria].librosDia}) Puntos --> ${maxLibrosEscanear}`
+      );*/
+
+      if (librosPuedeEscanear.length > maxLibrosEscanear) {
+        librosPuedeEscanear = librosPuedeEscanear.slice(0, maxLibrosEscanear);
+      }
+
+      // Calculamos el maximo score que obtendriamos con esta libreria
+      for (let libro of librosPuedeEscanear) {
         currentLibraryScore += libro.score;
-        console.log('AQUIN\nHOLA');
+      }
+
+      let scoreDiario = currentLibraryScore / librerias[libreria].signupDias;
+
+      //console.log(currentLibraryScore);
+      // Si el score de esta es mejor, sustituimos la mejor hasta ahora
+      if (scoreDiario > bestLibraryScore) {
+        bestLibrary = librerias[libreria];
+        bestLibraryScore = scoreDiario;
+        bestLibraryLibrosPuedeEscanear = librosPuedeEscanear;
+        puntos = currentLibraryScore;
       }
     }
-
-    // Si el score de esta es mejor, sustituimos la mejor hasta ahora
-    if (currentLibraryScore > bestLibraryScore) {
-      bestLibrary = librerias[libreria];
-      bestLibraryScore = currentLibraryScore;
-      bestLibraryLibrosPuedeEscanear = librosPuedeEscanear;
-    }
   }
-
+  tscore += puntos;
   //console.log(`Best score: ${bestLibraryScore}`)
   return [bestLibrary, bestLibraryLibrosPuedeEscanear]; // Tendriamos que eliminar de librerias la libreria que hayamos sacado como bestLibrary
 };
@@ -162,6 +172,7 @@ const main = async () => {
 
     // Declaramos las variables
     let libros = []; // Array de objetos de Libro. Ordenado por su id (practicamente ni se usa)
+    let librerias = []; // Array de objetos de Libreria. Ordenado por su id
 
     // Parseamos la primera linea
     const totalLibros = Number(input[0].split(' ')[0]);
@@ -203,12 +214,14 @@ const main = async () => {
 
     // ===================== TODO PARSEADO =====================
 
-    let output = [];
+    let output = []; // Cada elemento debe ser una linea del output
+    //let librosEscaneados = [] // Contiene las id de los libros escaneados
     let diasPasados = 0;
+    let numeroFinalLibrerias = 0;
 
     // Ordenamos las librerias por dias
     librerias.sort((a, b) => {
-      return a.puntuacion - b.puntuacion;
+      return a.signupDias - b.signupDias;
     });
 
     // for (let libreria of librerias) console.log(libreria) // Debugging
@@ -216,37 +229,42 @@ const main = async () => {
     // Preparar output
     output.push(String(totalLibrerias)); // Primera linea del output (posiblemente luego es editada)
 
-    while (Array.isArray(librerias) && librerias.length) {
-      let bestLibrary = searchBestLibrary(
+    while (totalDias - diasPasados > 0 && librerias.length > 0) {
+      // Buscamos la mejor libreria para los dias restantes
+      let bestLibrarySearch = searchBestLibrary(
         totalDias - diasPasados,
         librerias,
-        librosEscaneados
+        libros
       );
-      output.push(`${bestLibrary[0].id} ${bestLibrary[1].length}`);
-      let librosLibreria = '';
-      bestLibrary[1].forEach((element) => {
-        librosLibreria += `${element.id} `;
-      });
+      let bestLibrary = bestLibrarySearch[0]; // Objeto de Libreria
+      let bestLibraryLibrosPuedeEscanear = bestLibrarySearch[1]; // Array de objetos de Libro
 
-      for (let libroEscanear of bestLibrary[1]) {
-        librosEscaneados[libroEscanear.id] = libroEscanear.id;
-        //librosString += libroEscanear.id + ' ';
+      if (bestLibrary.signupDias < totalDias - diasPasados) {
+        // El numero de dias que tarda en darse de alta debe ser menor que el numero de dias que quedan
+        let librosLine = '';
+        for (let libro of bestLibraryLibrosPuedeEscanear) {
+          libros[libro.id].scanned = true;
+          librosLine += libro.id + ' ';
+        }
+
+        // Eliminamos la libreria
+        librerias.splice(librerias.indexOf(bestLibrary), 1);
+
+        output.push(
+          `${bestLibrary.id} ${bestLibraryLibrosPuedeEscanear.length}`
+        );
+        output.push(librosLine);
+        numeroFinalLibrerias++;
       }
 
-      output.push(librosLibreria);
-      const index = librerias.indexOf(bestLibrary[0]);
-      console.log(index);
-
-      if (index > -1) {
-        librerias.splice(index, 1);
-      }
+      diasPasados += bestLibrary.signupDias;
     }
 
-    output[0] = parseInt(output.length / 2); // Ponemos la cantidad correcta de librerias
-
+    output[0] = numeroFinalLibrerias;
     // Escribir output
     writeOutput(inputFile, output);
-
+    console.log(tscore);
+    tscore = 0;
     console.log('');
   }
 };
