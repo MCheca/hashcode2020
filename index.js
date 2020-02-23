@@ -17,7 +17,7 @@ const readline = require('readline')
 // Leer que ficheros hay
 const listInputs = dir => {
   return new Promise((resolve, reject) => {
-    // return resolve(['b_read_on.txt']) // Para hacer solo un fichero en especifico
+    return resolve(['a_example.txt']) // Para hacer solo un fichero en especifico
 
     const inputDir = path.join(__dirname, 'input')
     // Comprobamos que exista el directorio input
@@ -143,6 +143,37 @@ const searchBestLibrary = (diasRestantes, librerias, libros) => {
   return [bestLibrary, bestLibraryLibrosPuedeEscanear] // Tendriamos que eliminar de librerias la libreria que hayamos sacado como bestLibrary
 }
 
+const searchBestPermutation = (k, array, { librerias }) => {
+  if (k === 1) { // New permutation found
+    console.log(array)
+  } else {
+    searchBestPermutation(k - 1, array, { librerias })
+
+    for (let i = 0; i < k - 1; i++) {
+      if (k % 2 === 0) {
+        const tmp = array[i]
+        array[i] = array[k - 1]
+        array[k - 1] = tmp
+      } else {
+        const tmp = array[0]
+        array[0] = array[k - 1]
+        array[k - 1] = tmp
+      }
+      searchBestPermutation(k - 1, array, { librerias })
+    }
+  }
+}
+
+const range = (n) => {
+  let array = []
+
+  for (let i = 0; i < n; i++) {
+    array.push(i)
+  }
+
+  return array
+}
+
 const main = async () => {
   const inputList = await listInputs(path.join(__dirname, 'input'))
 
@@ -194,53 +225,8 @@ const main = async () => {
 
     // ===================== TODO PARSEADO =====================
 
-    let output = [] // Cada elemento debe ser una linea del output
-    //let librosEscaneados = [] // Contiene las id de los libros escaneados
-    let diasPasados = 0
-    let numeroFinalLibrerias = 0
-
-    // Ordenamos las librerias por dias
-    librerias.sort((a, b) => {
-      return a.signupDias - b.signupDias
-    })
-
-    // for (let libreria of librerias) console.log(libreria) // Debugging
-
-    // Preparar output
-    output.push(String(totalLibrerias)) // Primera linea del output (posiblemente luego es editada)
-
-    while (totalDias - diasPasados > 0 && librerias.length > 0) { // Buscamos la mejor libreria para los dias restantes
-      let bestLibrarySearch = searchBestLibrary(
-        totalDias - diasPasados,
-        librerias,
-        libros
-      )
-      let bestLibrary = bestLibrarySearch[0] // Objeto de Libreria
-      let bestLibraryLibrosPuedeEscanear = bestLibrarySearch[1] // Array de objetos de Libro
-
-      if (bestLibrary.signupDias < totalDias - diasPasados) { // El numero de dias que tarda en darse de alta debe ser menor que el numero de dias que quedan
-        let librosLine = ''
-        for (let libro of bestLibraryLibrosPuedeEscanear) {
-          libros[libro.id].scanned = true
-          librosLine += libro.id + ' '
-        }
-
-        // Eliminamos la libreria
-        librerias.splice(librerias.indexOf(bestLibrary), 1)
-
-        output.push(`${bestLibrary.id} ${bestLibraryLibrosPuedeEscanear.length}`)
-        output.push(librosLine)
-        numeroFinalLibrerias++
-      }
-
-      diasPasados += bestLibrary.signupDias
-    }
-
-    output[0] = numeroFinalLibrerias
-    // Escribir output
-    writeOutput(inputFile, output)
-
-    console.log('')
+    let idArray = range(librerias.length)
+    searchBestPermutation(idArray.length, idArray, { librerias })
   }
 }
 main()
