@@ -101,53 +101,39 @@ class Libreria {
   }
 }
 
-// Busca la mejor libreria que dar de alta en relacion con el tiempo restante de dias
-const searchBestLibrary = (diasRestantes, librerias, libros) => {
-  let bestLibrary = librerias[0]
-  let bestLibraryScore = 0
-  let bestLibraryLibrosPuedeEscanear = librerias[0].libros
+const calculatePermutationScore = (array, metadata) => {
+  let libros = [...metadata.libros]
+  let score = 0
+  let diasRestantes = metadata.totalDias
+  let i = 0
 
-  // Para cada libreria calculamos el score que daria si fuera la siguiente en ser dada de alta
-  console.log(librerias.length)
-  for (let libreria in librerias) {
-    let currentLibraryScore = 0
+  while (diasRestantes > 0 && metadata.librerias.length > i) {
+    const libreriaID = array[i]
+    const libreria = metadata.librerias[libreriaID]
 
-    let librosPuedeEscanear = [] // Array de objetos los libros que puede escanear
-    for (let libro of librerias[libreria].libros) {
-      //if (!librosEscaneados.includes(libro.id)) {
-      if (libros[libro.id].scanned == false) {
-        librosPuedeEscanear.push(libro)
+    if (libreria.signupDias < diasRestantes) {
+      for (let libro of libreria.libros) {
+        if (libros[libro.id].scanned == false) {
+          score += libro.score
+          libros[libro.id].scanned = true
+        }
       }
     }
 
-    // Decidimos cual es la cantidad total de libros que podria escanear
-    let maxLibrosEscanear = (diasRestantes - librerias[libreria].signupDias) * librerias[libreria].librosDia // Maximo numero de libros que le da tiempo a escanear
-    if (librosPuedeEscanear.length > maxLibrosEscanear) {
-      librosPuedeEscanear = librosPuedeEscanear.slice(0, maxLibrosEscanear)
-    }
-
-    // Calculamos el maximo score que obtendriamos con esta libreria
-    for (let libro of librosPuedeEscanear) {
-      currentLibraryScore += libro.score
-    }
-
-    // Si el score de esta es mejor, sustituimos la mejor hasta ahora
-    if (currentLibraryScore > bestLibraryScore) {
-      bestLibrary = librerias[libreria]
-      bestLibraryScore = currentLibraryScore
-      bestLibraryLibrosPuedeEscanear = librosPuedeEscanear
-    }
+    diasRestantes -= libreria.signupDias
+    i++
   }
 
-  //console.log(`Best score: ${bestLibraryScore}`)
-  return [bestLibrary, bestLibraryLibrosPuedeEscanear] // Tendriamos que eliminar de librerias la libreria que hayamos sacado como bestLibrary
+  console.log(score)
 }
 
-const searchBestPermutation = (k, array, { librerias }) => {
+const searchBestPermutation = (k, array, metadata) => {
   if (k === 1) { // New permutation found
-    console.log(array)
+    console.log(metadata.libros)
+
+    calculatePermutationScore(array, metadata)
   } else {
-    searchBestPermutation(k - 1, array, { librerias })
+    searchBestPermutation(k - 1, array, metadata)
 
     for (let i = 0; i < k - 1; i++) {
       if (k % 2 === 0) {
@@ -159,7 +145,7 @@ const searchBestPermutation = (k, array, { librerias }) => {
         array[0] = array[k - 1]
         array[k - 1] = tmp
       }
-      searchBestPermutation(k - 1, array, { librerias })
+      searchBestPermutation(k - 1, array, metadata)
     }
   }
 }
@@ -182,8 +168,8 @@ const main = async () => {
     const input = await readInput(inputFile)
 
     // Declaramos las variables
-    let libros = [] // Array de objetos de Libro. Ordenado por su id (practicamente ni se usa)
     let librerias = [] // Array de objetos de Libreria. Ordenado por su id
+    let libros = [] // Array de objetos de Libro. Ordenado por su id (practicamente ni se usa)
 
     // Parseamos la primera linea
     const totalLibros = Number(input[0].split(' ')[0])
@@ -226,7 +212,8 @@ const main = async () => {
     // ===================== TODO PARSEADO =====================
 
     let idArray = range(librerias.length)
-    searchBestPermutation(idArray.length, idArray, { librerias })
+    searchBestPermutation(idArray.length, idArray, { librerias, libros, totalLibrerias, totalLibros, totalDias })
+    //calculatePermutationScore(range(totalLibrerias), { librerias, libros, totalLibrerias, totalLibros, totalDias })
   }
 }
 main()
